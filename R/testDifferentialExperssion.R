@@ -5,14 +5,28 @@
 #' holding the Conditions between which differential expression should be tested.
 #' @param level Character string, return tests on peptide level or aggregate to protein level.
 #' Must be one of c("protein","peptide"). Defaults to "protein".
+#' @param transformation arithmetic function, the mathematical operation to transform the
+#' 'intensity' values with. E.g. log, sqrt, etc. If set to NULL no transformation
+#'  is performed (default).
 #' @return A data.table containing the differential testing results for every protein/peptide.
 #' @import qvalue
 #' @export
 testDifferentialExpression <- function(featureVals, 
                                        compare_between = "Condition",
-                                       level = c("protein","peptide")){
+                                       level = c("protein","peptide"),
+                                       transformation = NULL){
   level <- match.arg(level)
   featVals <- copy(featureVals)
+  
+  if(!is.null(transform)){
+    if(class(transformation) == "character"){
+      message(paste("Transforming intensities with", transformation, "..."))
+      transformation <- get(transformation)
+    } else{
+      message(paste("Transforming intensities..."))
+    }
+    featVals[, intensity := transformation(intensity)]
+  }
   setkeyv(featVals, c("feature_id", "apex", "id", "fraction"))
   message("Excluding peptides only found in one condition...")
   featureValsBoth <- filterValsByOverlap(featVals, compare_between)
