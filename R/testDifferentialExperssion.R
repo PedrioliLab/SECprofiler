@@ -25,7 +25,7 @@ testDifferentialExpression <- function(featureVals,
     } else{
       message(paste("Transforming intensities..."))
     }
-    featVals[, intensity := transformation(intensity)]
+    featVals[, intensity := transformation(intensity+1)]
   }
   setkeyv(featVals, c("feature_id", "apex", "id", "fraction"))
   message("Excluding peptides only found in one condition...")
